@@ -371,9 +371,14 @@ lib/
 }
 ```
 
-**Root Cause**: Missing URL scheme configuration in `Info.plist`. Google Sign-In requires a custom URL scheme (REVERSED_CLIENT_ID) to handle OAuth callbacks.
+**Root Causes Identified**:
+1. Missing URL scheme configuration in `Info.plist`
+2. **GoogleService-Info.plist not added to Xcode project** (Critical!)
+3. Missing explicit client ID in GoogleSignIn initialization
 
-### Fix Applied
+### Fixes Applied
+
+#### 1. Added URL Scheme to Info.plist
 
 **File**: `ios/Runner/Info.plist`
 
@@ -393,6 +398,41 @@ Added `CFBundleURLTypes` configuration:
 ```
 
 **Note**: The URL scheme value is the `REVERSED_CLIENT_ID` from `GoogleService-Info.plist`.
+
+#### 2. Added GoogleService-Info.plist to Xcode Project
+
+**Problem**: The `GoogleService-Info.plist` file existed in the filesystem but was not included in the Xcode project, causing Google Sign-In to fail.
+
+**Fix**: Added the file to Xcode project using xcodeproj gem:
+```bash
+ruby -e "
+require 'xcodeproj'
+project_path = 'ios/Runner.xcodeproj'
+project = Xcodeproj::Project.open(project_path)
+target = project.targets.first
+file_ref = project.new_file('Runner/GoogleService-Info.plist')
+target.add_resources([file_ref])
+project.save
+"
+```
+
+**Verification**: Check if file is in project:
+```bash
+grep -r "GoogleService-Info.plist" ios/Runner.xcodeproj/project.pbxproj
+```
+
+#### 3. Configured Explicit Client ID
+
+**File**: `lib/services/auth_service.dart`
+
+Updated GoogleSignIn initialization:
+```dart
+final GoogleSignIn _googleSignIn = GoogleSignIn(
+  clientId: '1061297794599-igjloohgbelrvpmh72pmk4cdm37pp1hl.apps.googleusercontent.com',
+);
+```
+
+**Note**: This is the `CLIENT_ID` value from `GoogleService-Info.plist`.
 
 ### Steps to Test
 
