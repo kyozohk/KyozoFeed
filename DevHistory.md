@@ -411,4 +411,315 @@ If `flutter run` encounters Xcode debugging session errors:
 
 ---
 
+## Session 5: Android Google Sign-In Configuration
+
+### Android Configuration Review
+
+Verified and fixed Android Google Sign-In setup to ensure it works correctly.
+
+#### 1. Google Services Plugin Configuration
+
+**Files Updated**:
+- `android/settings.gradle.kts`
+- `android/app/build.gradle.kts`
+
+**Changes Made**:
+
+Added google-services plugin to `settings.gradle.kts`:
+```kotlin
+plugins {
+    id("dev.flutter.flutter-plugin-loader") version "1.0.0"
+    id("com.android.application") version "8.11.1" apply false
+    id("org.jetbrains.kotlin.android") version "2.2.20" apply false
+    id("com.google.gms.google-services") version "4.4.0" apply false
+}
+```
+
+Applied plugin in `app/build.gradle.kts`:
+```kotlin
+plugins {
+    id("com.android.application")
+    id("kotlin-android")
+    id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services")
+}
+```
+
+#### 2. Fixed Package Name Mismatch
+
+**File**: `android/app/build.gradle.kts`
+
+**Problem**: Package name was `com.kyozo.kyozo_feed` but Firebase expects `com.kyozo.kyozoFeed`
+
+**Fix**:
+```kotlin
+android {
+    namespace = "com.kyozo.kyozoFeed"
+    // ...
+    defaultConfig {
+        applicationId = "com.kyozo.kyozoFeed"
+        // ...
+    }
+}
+```
+
+#### 3. Verified Configuration Files
+
+✅ **google-services.json**: Present at `android/app/google-services.json`
+- Package name: `com.kyozo.kyozoFeed`
+- App ID: `1:1061297794599:android:8a651e78d1aea24f44a802`
+- API Key: `AIzaSyCb8qVZuZX3v6dGOcbOK8XZP7mz0xVZZSs`
+
+✅ **AndroidManifest.xml**: Properly configured with required permissions and activities
+
+#### 4. SHA-1 Fingerprint Configuration
+
+**Important**: For Google Sign-In to work on Android, you need to add your SHA-1 fingerprint to Firebase Console.
+
+**Get Debug SHA-1**:
+```bash
+cd android
+./gradlew signingReport
+```
+
+**Get Release SHA-1** (for production):
+```bash
+keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
+```
+
+**Add to Firebase**:
+1. Go to Firebase Console > Project Settings
+2. Select your Android app
+3. Add SHA-1 certificate fingerprint
+4. Download updated `google-services.json` (if prompted)
+
+### Android Configuration Summary
+
+| Configuration | Status | Value |
+|--------------|--------|-------|
+| google-services.json | ✅ Present | `android/app/google-services.json` |
+| Google Services Plugin | ✅ Added | Version 4.4.0 |
+| Package Name | ✅ Fixed | `com.kyozo.kyozoFeed` |
+| Client ID in Code | ✅ Configured | In AuthService |
+| SHA-1 Fingerprint | ⚠️ Required | Add to Firebase Console |
+
+### Testing on Android
+
+1. Connect Android device or start emulator
+2. Run: `flutter run -d <device-id>`
+3. Tap "Continue with Google"
+4. Should open Google Sign-In flow
+5. Complete authentication
+6. Return to app
+
+**Note**: If Google Sign-In fails on Android, verify SHA-1 fingerprint is added to Firebase Console.
+
+---
+
+## Session 6: Willer Community Feed Implementation
+
+### Overview
+
+Implemented complete feed functionality for the Willer community with Firestore integration, following the web implementation design patterns.
+
+### Dependencies Added
+
+**File**: `pubspec.yaml`
+
+```yaml
+dependencies:
+  cloud_firestore: ^5.6.12
+  flutter_staggered_grid_view: ^0.7.0
+  cached_network_image: ^3.3.0
+```
+
+### Data Models Created
+
+**File**: `lib/models/post.dart`
+
+Created comprehensive Post model with:
+- Post types: text, image, audio, video, poll
+- Visibility levels: public, private, membersOnly
+- PostContent model for media and text content
+- Firestore document parsing
+
+### Services Implemented
+
+**File**: `lib/services/feed_service.dart`
+
+- `getWillerFeed()` - Loads posts for Willer community
+- `getCommunityFeed(handle)` - Generic community feed loader
+- Automatic visibility filtering based on authentication status
+- Real-time updates via Firestore snapshots
+
+**Query Logic**:
+```dart
+// For authenticated users
+.where('communityHandle', isEqualTo: 'willer')
+.where('visibility', whereIn: ['public', 'private'])
+.orderBy('createdAt', descending: true)
+
+// For guest users
+.where('communityHandle', isEqualTo: 'willer')
+.where('visibility', isEqualTo: 'public')
+.orderBy('createdAt', descending: true)
+```
+
+### Feed Card Components
+
+Created specialized card components for each content type:
+
+#### 1. Text Post Card
+**File**: `lib/widgets/feed/text_post_card.dart`
+- Purple-pink gradient background
+- "Read" badge with mauve color (#926B7F)
+- Read time calculation
+- Title and text preview
+
+#### 2. Audio Post Card
+**File**: `lib/widgets/feed/audio_post_card.dart`
+- "Listen" badge with blue color (#6E94B1)
+- Waveform visualization (60 bars)
+- Play button with timestamp
+- Horizontal layout option for featured audio
+
+#### 3. Video Post Card
+**File**: `lib/widgets/feed/video_post_card.dart`
+- "Watch" badge with yellow color (#F0C679)
+- Thumbnail with gradient overlay
+- Centered play button
+- Title overlay at bottom
+
+#### 4. Image Post Card
+**File**: `lib/widgets/feed/image_post_card.dart`
+- "Read" badge
+- Cached network image loading
+- Title and text preview below image
+- Card shadow for depth
+
+### Feed Screen
+
+**File**: `lib/screens/feed/feed_screen.dart`
+
+**Features**:
+- Filter buttons: All, Read, Listen, Watch
+- Masonry grid layout for varied content sizes
+- Featured audio posts (full width at top)
+- Real-time Firestore stream updates
+- Empty state handling
+- Error state handling
+- Loading indicators
+
+**Filter Logic**:
+- **All**: Shows all post types
+- **Read**: Text and image posts only
+- **Listen**: Audio posts only
+- **Watch**: Video posts only
+
+**Layout**:
+- Audio posts: Full width horizontal cards
+- Other posts: 2-column masonry grid
+- 24px spacing between cards
+- Responsive to content height
+
+### Brand Colors Applied
+
+All components use Kyozo brand colors:
+- Primary Purple: #843484
+- Read Mauve: #926B7F
+- Listen Blue: #6E94B1
+- Watch Yellow: #F0C679
+- Background: #D9D9D9 with 70% opacity
+
+### Home Screen Integration
+
+**File**: `lib/screens/home/home_screen.dart`
+
+Updated to:
+- Import new FeedScreen from `../feed/feed_screen.dart`
+- Use Kyozo primary purple for selected navigation items
+- Maintain bottom navigation structure
+
+### Firestore Setup Required
+
+To see posts in the feed, create test documents in Firestore:
+
+**Collection**: `blogs`
+
+**Required Fields**:
+```json
+{
+  "postId": "unique-id",
+  "title": "Post Title",
+  "type": "text|image|audio|video",
+  "content": {
+    "text": "Post content...",
+    "mediaUrls": ["url1", "url2"],
+    "thumbnailUrl": "thumbnail-url",
+    "fileType": "image/jpeg"
+  },
+  "authorId": "user-id",
+  "communityHandle": "willer",
+  "communityId": "community-id",
+  "visibility": "public",
+  "createdAt": Timestamp,
+  "likes": 0,
+  "comments": 0
+}
+```
+
+**Critical Requirements**:
+- ✅ `communityHandle` must be exactly `"willer"` (lowercase)
+- ✅ `visibility` must be `"public"` for guest access
+- ✅ `createdAt` must be a Firestore Timestamp
+- ✅ `type` must be one of: `"text"`, `"image"`, `"audio"`, `"video"`
+
+### File Structure
+
+```
+lib/
+├── models/
+│   └── post.dart
+├── services/
+│   └── feed_service.dart
+├── widgets/
+│   └── feed/
+│       ├── text_post_card.dart
+│       ├── audio_post_card.dart
+│       ├── video_post_card.dart
+│       └── image_post_card.dart
+├── screens/
+│   ├── feed/
+│   │   └── feed_screen.dart
+│   └── home/
+│       └── home_screen.dart
+└── constants/
+    ├── kyozo_colors.dart
+    └── kyozo_text_styles.dart
+```
+
+### Testing Checklist
+
+- [ ] Create test posts in Firestore with `communityHandle: "willer"`
+- [ ] Verify posts appear in feed
+- [ ] Test filter buttons (All, Read, Listen, Watch)
+- [ ] Test with authenticated and guest users
+- [ ] Verify real-time updates when posts are added
+- [ ] Test empty state display
+- [ ] Test error handling
+- [ ] Verify brand colors match design system
+
+### Next Steps
+
+1. Add post detail view
+2. Implement like and comment functionality
+3. Add user profile integration
+4. Implement post creation flow
+5. Add media playback for audio/video
+6. Implement infinite scroll/pagination
+7. Add pull-to-refresh
+8. Cache posts for offline viewing
+
+---
+
 *Last Updated: January 15, 2026*

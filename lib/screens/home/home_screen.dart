@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'feed_screen.dart';
+import '../feed/feed_screen.dart';
 import 'events_screen.dart';
 import 'calendar_screen.dart';
 import 'settings_screen.dart';
+import '../../constants/kyozo_colors.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -33,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF6366F1),
+        selectedItemColor: KyozoColors.primaryPurple,
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
