@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "1061297794599",
+    "project_id": "kyozoverse",
+    "storage_bucket": "kyozoverse.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1061297794599:android:8a651e78d1aea24f44a802",
+        "android_client_info": {
+          "package_name": "com.kyozo.kyozoFeed"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1061297794599-6dids4av78gg4pb350m5h3jkk0jfh6u6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCb8qVZuZX3v6dGOcbOK8XZP7mz0xVZZSs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1061297794599-6dids4av78gg4pb350m5h3jkk0jfh6u6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1061297794599-igjloohgbelrvpmh72pmk4cdm37pp1hl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.kyozo.kyozoFeed"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
