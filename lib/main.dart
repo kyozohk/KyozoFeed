@@ -8,6 +8,7 @@ import 'screens/auth/sign_in_screen.dart';
 import 'screens/auth/sign_up_screen.dart';
 import 'screens/auth/email_verification_screen.dart';
 import 'screens/home/home_screen.dart';
+import 'constants/kyozo_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,8 +29,9 @@ class MyApp extends StatelessWidget {
         title: 'KyozoFeed',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF6366F1)),
+          colorScheme: ColorScheme.fromSeed(seedColor: KyozoColors.primaryPurple),
           useMaterial3: true,
+          scaffoldBackgroundColor: KyozoColors.background,
         ),
         home: const AuthWrapper(),
         routes: {

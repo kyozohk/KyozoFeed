@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../constants/kyozo_colors.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -65,7 +66,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF6366F1),
+                    color: KyozoColors.primaryPurple,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -74,7 +75,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   'Sign in to continue',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey,
+                    color: KyozoColors.textSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -150,7 +151,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     return ElevatedButton(
                       onPressed: authProvider.isLoading ? null : _signIn,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6366F1),
+                        backgroundColor: KyozoColors.primaryPurple,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
@@ -206,8 +207,8 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                         side: BorderSide(color: Colors.grey[300]!),
                       ),
-                      icon: Image.network(
-                        'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
+                      icon: Image.asset(
+                        'assets/images/google_icon.png',
                         height: 24,
                         width: 24,
                       ),
@@ -234,7 +235,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       child: const Text(
                         'Sign Up',
                         style: TextStyle(
-                          color: Color(0xFF6366F1),
+                          color: KyozoColors.primaryPurple,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
